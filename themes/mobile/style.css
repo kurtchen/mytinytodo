@@ -1,0 +1,19 @@
+.task-due-date-completed { display:none; }
+.task-due-date { color:#333333; font-size:0.8em; margin-top:3px;}
+.task-due-date-soon { color:#008000; }
+.task-due-date-today { color:#FF0000; }
+.task-due-date-past { color:#A52A2A; }
+.task-notes {  }
+.task-tags .tag { font-size:0.8em; font-weight:bold; color:#333333; text-decoration:underline; margin-top:3px; }
+.task-tags .tag:hover {  }
+.task-date { color:#999999; font-size:0.8em; margin-top:3px; }
+.task-date-completed { color:#999999; font-size:0.8em; margin-top:3px; }
+
+#tasklist p {margin:0}
+
+.task-prio { padding-left:2px; padding-right:2px; margin-left:0px; margin-right:5px; cursor:default; }
+.prio-neg { background-color:#3377ff; color:#ffffff; }
+.prio-pos { background-color:#ff3333; color:#ffffff; }
+.prio-pos-1 { background-color:#ff7700; color:#ffffff; }
+.prio-zero { /*background-color:#dedede;*/ }
+.task-prio.prio-zero { display:none; } 

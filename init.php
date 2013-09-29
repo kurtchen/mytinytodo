@@ -113,6 +113,11 @@ function __($s)
 
 function mttinfo($v)
 {
+    if ($v == 'template_url') {
+        echo get_mttinfo('mtt_url'). 'themes/'. $_SESSION['template'] . '/';
+        return;
+    }
+
 	global $_mttinfo;
 	if(!isset($_mttinfo[$v])) {
 		echo get_mttinfo($v);
