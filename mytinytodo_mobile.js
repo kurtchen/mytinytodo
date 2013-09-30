@@ -482,6 +482,10 @@ var mytinytodo = window.mytinytodo = _mtt = {
             _mtt.pageBack();
         });
 
+        $(document).on('click', '#settings_bar_logout', function(){
+            logout();
+        });
+
 		// tab menu
 		this.addAction('listSelected', tabmenuOnListSelected);
 
@@ -2089,39 +2093,13 @@ function toggleMsgDetails()
 */
 function updateAccessStatus()
 {
-	// flag.needAuth is not changed after pageload
-	if(flag.needAuth)
-	{
-		$('#bar_auth').show();
-		if(flag.isLogged) {
-			showhide($("#bar_logout"),$("#bar_login"));
-			$('#bar .menu-owner').show();
-			$('#bar .bar-delim').show();
-		}
-		else {
-			showhide($("#bar_login"),$("#bar_logout"));
-			$('#bar .menu-owner').hide();
-			$('#bar .bar-delim').hide();
-		}
-	}
-	else {
-		$('#bar .menu-owner').show();
-	}
-	if(flag.needAuth && !flag.isLogged) {
-		flag.readOnly = true;
-		$("#bar_public").show();
-		$('#mtt_body').addClass('readonly')
-		liveSearchToggle(1);
-		// remove some tab menu items
-		$('#btnRenameList,#btnDeleteList,#btnClearCompleted,#btnPublish').remove();
-	}
-	else {
-		flag.readOnly = false;
-		$('#mtt_body').removeClass('readonly')
-		$("#bar_public").hide();
-		liveSearchToggle(0);
-	}
-	$('#page_ajax').hide();
+    if(flag.needAuth && !flag.isLogged) {
+        $('#settings_bar_login').show();
+        $('#settings_bar_logout').hide();
+    } else {
+        $('#settings_bar_login').hide();
+        $('#settings_bar_logout').show();
+    }
 }
 
 function showAuth(el)
@@ -2145,6 +2123,8 @@ function showAuth(el)
 
 function doAuth(form)
 {
+    $('#popupLogin').popup('close');
+
 	$.post(mytinytodo.mttUrl+'ajax.php?login', { login:1, password: form.password.value }, function(json){
 		form.password.value = '';
 		if(json.logged)
@@ -2153,11 +2133,12 @@ function doAuth(form)
 			window.location.reload();
 		}
 		else {
-			flashError(_mtt.lang.get('invalidpass'));
-			$('#password').focus();
+			//flashError(_mtt.lang.get('invalidpass'));
+			//$('#password').focus();
+            setTimeout(function() {showMessageDialog(_mtt.lang.get('invalidpass'));}, 500);
 		}
 	}, 'json');
-	$('#authform').hide();
+	//$('#authform').hide();
 }
 
 function logout()
@@ -2230,4 +2211,11 @@ function convertFormat4DatePicker(dateInt) // 20130929
     }
     return newDate;
 }
+
+function showMessageDialog(msg)
+{
+    $('#popupDialogMessage').html(msg);
+    $('#popupDialog').popup('open', {transition:'pop'});
+}
+
 })();

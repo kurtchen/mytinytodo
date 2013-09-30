@@ -43,10 +43,17 @@ $().ready(function(){
     }).loadLists(1);
 });
 </script>
+
+<!--START PAGEs-->
 <div id="page_tasks"><!-- data-role="page"-->
     <div data-role="panel" id="mypanel" data-position="left" data-display="overlay">
         <div id="lists">
          <ul class="mtt-tabs" data-role="listview" data-count-theme="c" data-inset="true"></ul>
+        </div>
+        <div id="settings_bar" align="right" data-role="controlgroup" data-corners="false" data-type="horizontal">
+           <a id="settings_bar_login" href="#popupLogin" data-icon="grid" data-role="button" data-rel="popup" data-position-to="window"data-transition="pop" data-inline="true" data-mini="true">Login</a>
+           <a id="settings_bar_logout" href="#" data-icon="grid" data-role="button" data-position-to="window" data-inline="true" data-mini="true">Logout</a>
+           <a id="settings_bar_system_setting" href="#" data-icon="gear" data-role="button" data-inline="true" data-mini="true">Settings</a>
         </div>
     </div>
     <div data-role="header">
@@ -99,5 +106,24 @@ $().ready(function(){
     <div data-role="footer">
     </div>
 </div>
+<!--END PAGEs-->
+
+<!--START POPUPs-->
+<div data-role="popup" id="popupLogin" data-overlay-theme="a" class="ui-corner-all">
+    <form id="login_form">
+        <div style="padding:10px 20px;">
+            <label for="password" class="ui-hidden-accessible">Password:</label>
+            <input type="password" name="password" id="password" value="" placeholder="password">
+            <button type="submit" data-icon="check">Login</button>
+        </div>
+    </form>
+</div>
+
+<div data-role="popup" id="popupDialog" class="ui-content" style="max-width:280px">
+    <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+    <p id="popupDialogMessage"></p>
+</div>
+<!--END POPUPs-->
+
 </body>
 </html>
