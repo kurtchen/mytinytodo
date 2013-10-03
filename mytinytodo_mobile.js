@@ -833,13 +833,12 @@ function loadTasks(opts)
 		}
 		refreshTaskCnt();
 		$('#tasklist').html(tasks);
-		$('#tasklist #btn_edit_task').button();
 		$('#tasklist').collapsibleset("refresh");
 		$('#header_title').text(listName);
 
-        $(document).off('click', '#tasklist #btn_edit_task');
-        $(document).on('click', '#tasklist #btn_edit_task', function(){
-            handleEditTaskButtonClicked(this);
+        $('[id^=taskrow_]').on('expand', function(event,ui){
+            console.log("show menu on expand, id=" + this.id);
+            taskContextMenu(this, this.id.split('_',2)[1]);
         });
 	});
 };
@@ -858,7 +857,13 @@ function prepareTaskStr(item, noteExp)
                    '<div>' + prepareTagsStr(item) + '</div>'+
                    '<div class="task-date">' + item.dateInlineTitle + '</div>'+
                    (item.compl?'<div class="task-date-completed">' + item.dateCompletedInline + '</div>' : '') +
-                   '<div id="'+id+'_taskrow" align="right"><a id="btn_edit_task" href="#" data-role="button" data-icon="edit" data-iconpos="notext" data-theme="c" data-inline="true">Edit</a></div>' +
+                   '<div id="taskcontextcontainer_'+id+'" class="task-menu" align="right">'+
+                   '<ul>' +
+                   '<li id="cmenu_task_complete:'+id+'"><a id="cmenu_task_complete_'+id+'" href="#" data-role="button" data-icon="delete" data-iconpos="notext" data-theme="c" data-inline="true">Complete</a></li>'+
+                   '<li id="cmenu_task_move:'+id+'"><a id="cmenu_task_move_'+id+'" href="#" data-role="button" data-icon="add" data-iconpos="notext" data-theme="c" data-inline="true">Move</a></li>'+
+                   '<li id="cmenu_edit:'+id+'"><a id="cmenu_edit_'+id+'" href="#" data-role="button" data-icon="edit" data-iconpos="notext" data-theme="c" data-inline="true">Edit</a></li>'+
+                   '</ul>' +
+                   '</div>' +
                '</p>' +
            '</div>\n';
 };
@@ -923,10 +928,13 @@ function submitNewTask(form)
 		taskOrder.push(parseInt(item.id));
 		$('#tasklist').append(prepareTaskStr(item));
 		$('#tasklist').collapsibleset("refresh");
-		$('#tasklist #btn_edit_task').button();
 		changeTaskOrder(item.id);
 		$('#taskrow_'+item.id).effect("highlight", {color:_mtt.theme.newTaskFlashColor}, 2000);
 		refreshTaskCnt();
+        $('#taskrow_'+item.id).on('expand', function(event,ui){
+            console.log("show menu on expand, id=" + this.id);
+            taskContextMenu(this, this.id.split('_',2)[1]);
+        });
 	}); 
 	flag.tagsChanged = true;
 	return false;
@@ -1233,8 +1241,8 @@ function deleteTask(id)
 function completeTask(id, ch)
 {
 	if(!taskList[id]) return; //click on already removed from the list while anim. effect
-	var compl = 0;
-	if(ch.checked) compl = 1;
+	var compl = taskList[id].compl ? 0 : 1;
+	//if(ch.checked) compl = 1;
 	_mtt.db.request('completeTask', {id:id, compl:compl, list:curList.id}, function(json){
 		if(!parseInt(json.total)) return;
 		var item = json.list[0];
@@ -1250,11 +1258,14 @@ function completeTask(id, ch)
 		else if(curList.showCompl) {
 			$('#taskrow_'+item.id).replaceWith(prepareTaskStr(taskList[id]));
             $('#tasklist').collapsibleset("refresh");
-            $('#tasklist #btn_edit_task').button();
 			$('#taskrow_'+id).fadeOut('fast', function(){	
 				changeTaskOrder(id);				
 				$(this).effect("highlight", {color:_mtt.theme.editTaskFlashColor}, 'normal', function(){$(this).css('display','')});
 			});
+            $('#taskrow_'+item.id).on('expand', function(event,ui){
+                console.log("show menu on expand, id=" + this.id);
+                taskContextMenu(this, this.id.split('_',2)[1]);
+            });
 		}
 		refreshTaskCnt();
 	});
@@ -1382,8 +1393,11 @@ function saveTask(form)
 			var noteExpanded = (item.note != '' && $('#taskrow_'+item.id).is('.task-expanded')) ? 1 : 0;
 			$('#taskrow_'+item.id).replaceWith(prepareTaskStr(item, noteExpanded));
             $('#tasklist').collapsibleset("refresh");
-            $('#tasklist #btn_edit_task').button();
 			if(curList.sort != 0) changeTaskOrder(item.id);
+            $('#taskrow_'+item.id).on('expand', function(event,ui){
+                console.log("show menu on expand, id=" + this.id);
+                taskContextMenu(this, this.id.split('_',2)[1]);
+            });
             $('#taskrow_'+item.id).trigger('expand');
 			_mtt.pageBack(); //back to list
 			refreshTaskCnt();
@@ -1508,8 +1522,11 @@ function submitFullTask(form)
 		taskOrder.push(parseInt(item.id));
 		$('#tasklist').append(prepareTaskStr(item));
 		$('#tasklist').collapsibleset("refresh");
-		$('#tasklist #btn_edit_task').button();
 		changeTaskOrder(item.id);
+        $('#taskrow_'+item.id).on('expand', function(event,ui){
+            console.log("show menu on expand, id=" + this.id);
+            taskContextMenu(this, this.id.split('_',2)[1]);
+        });
         $('#taskrow_'+item.id).trigger('expand');
 		_mtt.pageBack();
 		$('#taskrow_'+item.id).effect("highlight", {color:_mtt.theme.newTaskFlashColor}, 2000);
@@ -1735,15 +1752,20 @@ function mttMenu(container, options)
 
 function taskContextMenu(el, id)
 {
-	if(!_mtt.menus.cmenu) _mtt.menus.cmenu = new mttMenu('taskcontextcontainer', {
+	if(_mtt.menus.cmenu) _mtt.menus.cmenu.destroy();
+	_mtt.menus.cmenu = null;
+	_mtt.menus.cmenu = new mttMenu('taskcontextcontainer_'+id, {
 		onclick: taskContextClick,
 		beforeShow: function() {
 			$('#cmenupriocontainer li').removeClass('mtt-item-checked');
 			$('#cmenu_prio\\:'+ taskList[_mtt.menus.cmenu.tag].prio).addClass('mtt-item-checked');
-		} 
+		}
 	});
+    $('#taskrow_'+id+' #cmenu_task_complete_'+id).button();
+    $('#taskrow_'+id+' #cmenu_edit_'+id).button();
+    $('#taskrow_'+id+' #cmenu_task_move_'+id).button();
 	_mtt.menus.cmenu.tag = id;
-	_mtt.menus.cmenu.show(el);
+	//_mtt.menus.cmenu.show(el);
 };
 
 function taskContextClick(el, menu)
@@ -1761,6 +1783,8 @@ function taskContextClick(el, menu)
 		case 'cmenu_note': toggleTaskNote(taskId); break;
 		case 'cmenu_delete': deleteTask(taskId); break;
 		case 'cmenu_prio': setTaskPrio(taskId, parseInt(value)); break;
+        case 'cmenu_task_move': handleMoveTaskButtonClicked(); break;
+        case 'cmenu_task_complete': completeTask(taskId, el); break;
 		case 'cmenu_list':
 			if(menu.$caller && menu.$caller.attr('id')=='cmenu_move') moveTaskToList(taskId, value);
 			break;
@@ -1782,7 +1806,10 @@ function moveTaskToList(taskId, listId)
 			var noteExpanded = (item.note != '' && $('#taskrow_'+item.id).is('.task-expanded')) ? 1 : 0;
 			$('#taskrow_'+item.id).replaceWith(prepareTaskStr(item, noteExpanded));
             $('#tasklist').collapsibleset("refresh");
-            $('#tasklist #btn_edit_task').button();
+            $('#taskrow_'+item.id).on('expand', function(event,ui){
+                console.log("show menu on expand, id=" + this.id);
+                taskContextMenu(this, this.id.split('_',2)[1]);
+            });
 			if(curList.sort != 0) changeTaskOrder(item.id);
 			refreshTaskCnt();
 			$('#taskrow_'+item.id).effect("highlight", {color:_mtt.theme.editTaskFlashColor}, 'normal', function(){$(this).css('display','')});
@@ -1809,9 +1836,17 @@ function cmenuOnListsLoaded()
 	var s = '';
 	var all = tabLists.getAll();
 	for(var i in all) {
-		s += '<li id="cmenu_list:'+all[i].id+'" class="'+(all[i].hidden?'mtt-list-hidden':'')+'">'+all[i].name+'</li>';
+		s += '<li id="cmenu_list:'+all[i].id+'" class="'+(all[i].hidden?'mtt-list-hidden':'')+'">'+
+            '<a id="cmenu_list_item" href="#">'+all[i].name+'</a>'+
+            '</li>';
 	}
 	$('#cmenulistscontainer ul').html(s);
+    $('#cmenulistscontainer ul').listview("refresh");
+
+    $(document).off('click', '#cmenulistscontainer li');
+    $(document).on('click', '#cmenulistscontainer li', function(){
+        onMoveToListClicked(this);
+    });
 };
 
 function cmenuOnListAdded(list)
@@ -2194,6 +2229,11 @@ function handleEditTaskButtonClicked(el)
     editTask(taskId);
 }
 
+function handleMoveTaskButtonClicked()
+{
+    $('#popupMenuMoveTask').popup('open', {transition:'pop'});
+}
+
 function handleSaveTaskButtonClicked()
 {
     $('#taskedit_form').submit();
@@ -2216,6 +2256,19 @@ function showMessageDialog(msg)
 {
     $('#popupDialogMessage').html(msg);
     $('#popupDialog').popup('open', {transition:'pop'});
+}
+
+function onMoveToListClicked(el)
+{
+    var li = findParentNode(el, 'LI');
+    var listId = li.id.split(':')[1];
+    var taskId = _mtt.menus.cmenu.tag;
+
+    console.log('move task to, task id=' + taskId + ', list id=' + listId);
+
+    moveTaskToList(taskId, listId);
+
+    $('#popupMenuMoveTask').popup('close');
 }
 
 })();

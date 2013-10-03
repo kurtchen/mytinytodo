@@ -123,6 +123,12 @@ $().ready(function(){
     <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
     <p id="popupDialogMessage"></p>
 </div>
+
+<div data-role="popup" id="popupMenuMoveTask" class="ui-content" style="max-width:350px">
+    <div id="cmenulistscontainer">
+        <ul data-role="listview" data-count-theme="c"></ul>
+    </div>
+</div>
 <!--END POPUPs-->
 
 </body>

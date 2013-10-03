@@ -16,4 +16,7 @@
 .prio-pos { background-color:#ff3333; color:#ffffff; }
 .prio-pos-1 { background-color:#ff7700; color:#ffffff; }
 .prio-zero { /*background-color:#dedede;*/ }
-.task-prio.prio-zero { display:none; } 
+.task-prio.prio-zero { display:none; }
+
+.task-menu ul {margin:0; padding:0}
+.task-menu li {list-style-type:none; display:inline}
