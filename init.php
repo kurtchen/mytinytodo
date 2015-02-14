@@ -2,7 +2,7 @@
 /*
 	This file is part of myTinyTodo.
 	(C) Copyright 2009-2010 Max Pozdeev <maxpozdeev@gmail.com>
-	Licensed under the GNU GPL v3 license. See file COPYRIGHT for details.
+	Licensed under the GNU GPL v2 license. See file COPYRIGHT for details.
 */
 
 if(!defined('MTTPATH')) define('MTTPATH', dirname(__FILE__) .'/');
@@ -39,6 +39,11 @@ else {
 	die("Not installed. Run <a href=setup.php>setup.php</a> first.");
 }
 $db->prefix = Config::get('prefix');
+
+//User can override language setting by cookies
+if(isset($_COOKIE['lang']) && preg_match("/^[a-z-]+$/i", $_COOKIE['lang']) && file_exists('lang/'. $_COOKIE['lang']. '.php')) {
+	Config::set('lang', $_COOKIE['lang']);
+}
 
 require_once(MTTPATH. 'lang/class.default.php');
 require_once(MTTPATH. 'lang/'.Config::get('lang').'.php');
