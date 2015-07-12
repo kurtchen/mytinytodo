@@ -487,6 +487,11 @@ var mytinytodo = window.mytinytodo = _mtt = {
 		return this;
 	},
 
+	setCurList: function(l)
+    {
+        curList = l;
+    },
+
 	log: function(v)
 	{
 		console.log.apply(this, arguments);

@@ -1,0 +1,1 @@
+javascript:(function(){var a=window,b=document,c=encodeURIComponent,d=a.open('http://kurtchen.com/todo_test/newtask.php?listid=4&title='+c(b.title)+'&notes='+c(b.location)+'&tags=','bkmk_popup','left='+((a.screenX||a.screenLeft)+10)+',top='+((a.screenY||a.screenTop)+10)+',height=600px,width=550px,resizable=1,alwaysRaised=1');a.setTimeout(function(){d.focus()},300)})();
